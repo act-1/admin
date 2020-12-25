@@ -1,4 +1,5 @@
 import { RenderRoutes as Routes } from './routes/RenderRoutes';
+import { Link } from 'react-router-dom';
 import { Layout, Menu, Breadcrumb } from 'antd';
 import { HomeOutlined, AuditOutlined } from '@ant-design/icons';
 
@@ -11,11 +12,13 @@ function App() {
       <Sider>
         <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline">
           <Menu.Item key="1" icon={<HomeOutlined />}>
-            ראשי
+            <Link to="/">ראשי</Link>
           </Menu.Item>
 
           <SubMenu key="sub1" icon={<AuditOutlined />} title="פיד">
-            <Menu.Item key="2">יצירת פוסט</Menu.Item>
+            <Menu.Item key="2">
+              <Link to="/feed/new">יצירת פוסט</Link>
+            </Menu.Item>
           </SubMenu>
         </Menu>
       </Sider>
