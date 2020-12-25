@@ -21,8 +21,8 @@ export const auth = firebase.auth();
 //   firebase.functions().useEmulator('localhost', 5001);
 // }
 
-// export const provider = new firebase.auth.GoogleAuthProvider();
-// export const signInWithGoogle = () => auth.signInWithPopup(provider);
-// export const signOut = () => auth.signOut();
+export const provider = new firebase.auth.GoogleAuthProvider();
+export const signInWithGoogle = () => auth.signInWithPopup(provider);
+export const signOut = () => auth.signOut();
 
 export default firebase;
