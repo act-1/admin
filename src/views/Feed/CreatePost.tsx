@@ -1,4 +1,4 @@
-import { Form, Input, Select, Button, Checkbox } from 'antd';
+import { Form, Input, Select, Button } from 'antd';
 import { useFirestore, useFirestoreCollectionData } from 'reactfire';
 import { Organization } from '../../types/firestore';
 
