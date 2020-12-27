@@ -1,7 +1,7 @@
 import { RenderRoutes as Routes } from './routes/RenderRoutes';
 import { Link } from 'react-router-dom';
 import { Layout, Menu, Breadcrumb } from 'antd';
-import { HomeOutlined, AuditOutlined } from '@ant-design/icons';
+import { HomeOutlined, CalendarOutlined, AuditOutlined } from '@ant-design/icons';
 
 const { Header, Content, Sider } = Layout;
 const { SubMenu } = Menu;
@@ -15,8 +15,14 @@ function App() {
             <Link to="/">ראשי</Link>
           </Menu.Item>
 
-          <SubMenu key="sub1" icon={<AuditOutlined />} title="פיד">
+          <SubMenu key="sub1" icon={<CalendarOutlined />} title="אירועים">
             <Menu.Item key="2">
+              <Link to="/events/new">אירוע חדש</Link>
+            </Menu.Item>
+          </SubMenu>
+
+          <SubMenu key="sub2" icon={<AuditOutlined />} title="פיד">
+            <Menu.Item key="3">
               <Link to="/feed/new">יצירת פוסט</Link>
             </Menu.Item>
           </SubMenu>
