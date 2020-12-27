@@ -26,6 +26,11 @@ function App() {
               <Link to="/feed/new">יצירת פוסט</Link>
             </Menu.Item>
           </SubMenu>
+          <SubMenu key="sub3" icon={<AuditOutlined />} title="ארגונים">
+            <Menu.Item key="4">
+              <Link to="/organizations/new">ארגון חדש</Link>
+            </Menu.Item>
+          </SubMenu>
         </Menu>
       </Sider>
       <Layout className="site-layout">
