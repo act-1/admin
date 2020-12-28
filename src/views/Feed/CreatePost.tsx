@@ -14,7 +14,7 @@ const { Option } = Select;
 const { TextArea } = Input;
 
 type PostDocument = {
-  organizationId: string;
+  authorId: string;
   content: string;
 };
 
@@ -58,18 +58,26 @@ function CreatePost() {
   const onFinish = async (values: PostDocument) => {
     try {
       const content = serialize(editor);
+      const org = organizations.find((org) => org.id === values.authorId);
 
-      firestore
-        .collection('posts')
-
-        .add({
+      if (org) {
+        await firestore.collection('posts').add({
           ...values,
           content,
+          authorId: org.id,
+          authorPicture: org.thumbnail,
+          authorName: org.title,
+          authorType: 'organization',
+          timestamp: new Date(),
         });
+      } else {
+        throw new Error('Organization not found.');
+      }
     } catch (err) {
       console.error(err);
     }
   };
+
   const onFinishFailed = (errorInfo: any) => {
     console.log('Failed:', errorInfo);
   };
@@ -81,23 +89,20 @@ function CreatePost() {
   return (
     <div className="form-wrapper">
       <Form {...layout} name="feed-post" onFinish={onFinish} onFinishFailed={onFinishFailed} initialValues={{ remember: true }}>
-        <Form.Item label="כותב הפוסט" name="organizationId">
+        <Form.Item label="כותב הפוסט" name="authorId">
           <Select>
             {organizations.map((org) => (
-              <Option value={org.NO_ID_FIELD} key={org.NO_ID_FIELD}>
+              <Option value={org.id} key={org.id}>
                 <img alt="" style={{ width: 25, borderRadius: 25, marginLeft: 8 }} src={org.thumbnail} />
                 {org.title}
               </Option>
             ))}
           </Select>
         </Form.Item>
-        {/* <Form.Item label="תוכן" name="content" noStyle> */}
         <label>תוכן:</label>
         <Slate editor={editor} value={value} onChange={(newValue) => setValue(newValue)}>
           <Editable style={{ width: 200, padding: 10, border: '1px solid #d9d9d9' }} />
         </Slate>
-        {/* <TextArea autoSize={{ minRows: 3, maxRows: 5 }} placeholder="תוכן הפוסט" /> */}
-        {/* </Form.Item> */}
         <Form.Item {...tailLayout}>
           <Button type="primary" htmlType="submit">
             יצירת פוסט
