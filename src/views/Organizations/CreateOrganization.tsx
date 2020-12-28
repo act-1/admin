@@ -24,7 +24,7 @@ function CreateOrganization() {
     const orgDoc = await firestore.collection('organizations').doc(org.id).get();
 
     if (orgDoc.exists) {
-      return message.error('הארגון כבר קיים');
+      return message.error({ content: 'הארגון כבר קיים', key: 'creating-organization' });
     }
 
     firestore
