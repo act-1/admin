@@ -46,7 +46,6 @@ function CreateOrganization() {
     form.resetFields();
   };
 
-  // יש להזין
   return (
     <div className="form-wrapper">
       <Form
