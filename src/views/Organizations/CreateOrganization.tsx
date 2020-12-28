@@ -1,5 +1,4 @@
-import { Form, Input, Upload, Button } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
+import { Form, Input, Button, message } from 'antd';
 import { firestore } from '../../firebase';
 
 const layout = {
@@ -10,38 +9,61 @@ const tailLayout = {
   wrapperCol: { offset: 12 },
 };
 
-type EventDocument = {
+type OrganizationDocument = {
   id: string;
-  title: string;
-  locationName: string;
-  content: string;
+  name: string;
+  thumbnail: string;
 };
 
 function CreateOrganization() {
-  const onFinish = (values: EventDocument) => {
+  const [form] = Form.useForm();
+
+  const onFinish = async (org: OrganizationDocument) => {
+    message.loading({ content: 'רושם את הארגון...', key: 'creating-organization' });
+
+    const orgDoc = await firestore.collection('organizations').doc(org.id).get();
+
+    if (orgDoc.exists) {
+      return message.error('הארגון כבר קיים');
+    }
+
     firestore
       .collection('organizations')
-      .doc(values.id)
+      .doc(org.id)
       .set({
-        ...values,
+        ...org,
       });
-  };
-  const onFinishFailed = (errorInfo: any) => {
-    console.log('Failed:', errorInfo);
+
+    onReset();
+    message.success({ content: 'הארגון נרשם בהצלחה!', key: 'creating-organization' });
   };
 
+  const onFinishFailed = (errorInfo: any) => {
+    console.error(errorInfo);
+  };
+
+  const onReset = () => {
+    form.resetFields();
+  };
+
+  // יש להזין
   return (
     <div className="form-wrapper">
-      <Form {...layout} name="event" initialValues={{ remember: true }} onFinish={onFinish} onFinishFailed={onFinishFailed}>
-        <Form.Item label="שם הארגון" name="name">
+      <Form
+        form={form}
+        {...layout}
+        name="event"
+        initialValues={{ remember: true }}
+        onFinish={onFinish}
+        onFinishFailed={onFinishFailed}
+      >
+        <Form.Item label="שם הארגון" name="name" rules={[{ required: true, message: 'יש להזין את שם הארגון' }]}>
           <Input />
         </Form.Item>
-        <Form.Item label="לוגו" name="thumbnail">
-          <Upload name="logo" action="/upload.do" listType="picture">
-            <Button icon={<UploadOutlined />}>בחר קובץ</Button>
-          </Upload>
+        <Form.Item label="לוגו" name="thumbnail" rules={[{ required: true, message: 'יש להזין לוגו' }]}>
+          <Input />
         </Form.Item>
-        <Form.Item label="Slug" name="id">
+        <Form.Item label="מזהה (id)" name="id" rules={[{ required: true, message: 'יש להזין מזהה ארגון' }]}>
           <Input />
         </Form.Item>
         <Form.Item {...tailLayout}>
