@@ -1,7 +1,7 @@
 import { RenderRoutes as Routes } from './routes/RenderRoutes';
 import { Link } from 'react-router-dom';
 import { Layout, Menu, Breadcrumb } from 'antd';
-import { HomeOutlined, CalendarOutlined, AuditOutlined } from '@ant-design/icons';
+import { HomeOutlined, CalendarOutlined, AuditOutlined, TeamOutlined } from '@ant-design/icons';
 
 const { Header, Content, Sider } = Layout;
 const { SubMenu } = Menu;
@@ -24,6 +24,11 @@ function App() {
           <SubMenu key="sub2" icon={<AuditOutlined />} title="פיד">
             <Menu.Item key="3">
               <Link to="/feed/new">יצירת פוסט</Link>
+            </Menu.Item>
+          </SubMenu>
+          <SubMenu key="sub3" icon={<TeamOutlined />} title="ארגונים">
+            <Menu.Item key="4">
+              <Link to="/organizations/new">ארגון חדש</Link>
             </Menu.Item>
           </SubMenu>
         </Menu>
