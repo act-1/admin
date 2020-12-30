@@ -71,6 +71,7 @@ function CreatePost() {
           authorPicture: org.thumbnail,
           authorName: org.name,
           authorType: 'organization',
+          likeCounter: 0,
           timestamp: firebase.firestore.FieldValue.serverTimestamp(),
         });
         message.success({ content: 'הפוסט נוצר', key: 'create-post' });
