@@ -1,9 +1,9 @@
 // @ts-nocheck
 
 import { useState, useMemo } from 'react';
-import { Form, Input, Select, Button } from 'antd';
+import { Form, Input, Select, Button, message } from 'antd';
 import { useFirestore, useFirestoreCollectionData } from 'reactfire';
-import { firestore } from '../../firebase';
+import firebase, { firestore } from '../../firebase';
 import { Organization } from '../../types/firestore';
 
 import escapeHtml from 'escape-html';
@@ -11,7 +11,6 @@ import { createEditor, Node, Text } from 'slate';
 import { Slate, Editable, withReact } from 'slate-react';
 
 const { Option } = Select;
-const { TextArea } = Input;
 
 type PostDocument = {
   authorId: string;
@@ -46,7 +45,10 @@ const serialize = (node: Node): any => {
 };
 
 function CreatePost() {
-  const { data: organizations }: { data: Organization[] } = useFirestoreCollectionData(useFirestore().collection('organizers'));
+  const { data: organizations }: { data: Organization[] } = useFirestoreCollectionData(
+    useFirestore().collection('organizations')
+  );
+
   const [value, setValue] = useState<Node[]>([
     {
       type: 'paragraph',
@@ -56,6 +58,7 @@ function CreatePost() {
   const editor = useMemo(() => withReact(createEditor()), []);
 
   const onFinish = async (values: PostDocument) => {
+    message.loading({ content: 'יוצרת פוסט...', key: 'create-post' });
     try {
       const content = serialize(editor);
       const org = organizations.find((org) => org.id === values.authorId);
@@ -66,19 +69,22 @@ function CreatePost() {
           content,
           authorId: org.id,
           authorPicture: org.thumbnail,
-          authorName: org.title,
+          authorName: org.name,
           authorType: 'organization',
-          timestamp: new Date(),
+          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
         });
+        message.success({ content: 'הפוסט נוצר', key: 'create-post' });
       } else {
         throw new Error('Organization not found.');
       }
     } catch (err) {
+      message.error({ content: err.message, key: 'creating-organization' });
       console.error(err);
     }
   };
 
   const onFinishFailed = (errorInfo: any) => {
+    message.error({ content: 'התרחשה תקלה' });
     console.log('Failed:', errorInfo);
   };
 
@@ -94,15 +100,25 @@ function CreatePost() {
             {organizations.map((org) => (
               <Option value={org.id} key={org.id}>
                 <img alt="" style={{ width: 25, borderRadius: 25, marginLeft: 8 }} src={org.thumbnail} />
-                {org.title}
+                {org.name}
               </Option>
             ))}
           </Select>
         </Form.Item>
-        <label>תוכן:</label>
-        <Slate editor={editor} value={value} onChange={(newValue) => setValue(newValue)}>
-          <Editable style={{ width: 200, padding: 10, border: '1px solid #d9d9d9' }} />
-        </Slate>
+        <div className="ant-row ant-row-rtl ant-form-item">
+          <div className="ant-col ant-col-8 ant-form-item-label ant-col-rtl">
+            <label>תוכן</label>
+          </div>
+
+          <div className="ant-col ant-col-12 ant-form-item-control ant-col-rtl">
+            <Slate editor={editor} value={value} onChange={(newValue) => setValue(newValue)}>
+              <Editable
+                className="ant-form-item-control-input-content"
+                style={{ minHeight: 150, padding: 10, border: '1px solid #d9d9d9' }}
+              />
+            </Slate>
+          </div>
+        </div>
         <Form.Item {...tailLayout}>
           <Button type="primary" htmlType="submit">
             יצירת פוסט
