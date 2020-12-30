@@ -19,23 +19,28 @@ function CreateOrganization() {
   const [form] = Form.useForm();
 
   const onFinish = async (org: OrganizationDocument) => {
-    message.loading({ content: 'רושם את הארגון...', key: 'creating-organization' });
+    message.loading({ content: 'רושמת את הארגון...', key: 'creating-organization' });
 
-    const orgDoc = await firestore.collection('organizations').doc(org.id).get();
+    try {
+      const orgDoc = await firestore.collection('organizations').doc(org.id).get();
 
-    if (orgDoc.exists) {
-      return message.error({ content: 'הארגון כבר קיים', key: 'creating-organization' });
+      if (orgDoc.exists) {
+        return message.error({ content: 'הארגון כבר קיים', key: 'creating-organization' });
+      }
+
+      await firestore
+        .collection('organizations')
+        .doc(org.id)
+        .set({
+          ...org,
+        });
+
+      message.success({ content: 'הארגון נרשם בהצלחה!', key: 'creating-organization' });
+      onReset();
+    } catch (err) {
+      console.error(err);
+      message.error({ content: 'התרחשה תקלה', key: 'creating-organization' });
     }
-
-    firestore
-      .collection('organizations')
-      .doc(org.id)
-      .set({
-        ...org,
-      });
-
-    onReset();
-    message.success({ content: 'הארגון נרשם בהצלחה!', key: 'creating-organization' });
   };
 
   const onFinishFailed = (errorInfo: any) => {
