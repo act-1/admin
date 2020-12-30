@@ -22,7 +22,9 @@ type EventDocument = {
 };
 
 function CreateEvent() {
-  const { data: organizations }: { data: Organization[] } = useFirestoreCollectionData(useFirestore().collection('organizers'));
+  const { data: organizations }: { data: Organization[] } = useFirestoreCollectionData(
+    useFirestore().collection('organizations')
+  );
 
   const onFinish = (values: EventDocument) => {
     firestore
