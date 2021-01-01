@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import escapeHtml from 'escape-html';
 import { createEditor, Node, Text } from 'slate';
 import { Slate, Editable, withReact } from 'slate-react';
@@ -7,7 +7,8 @@ function serialize(node: any): any {
   if (Text.isText(node)) {
     return escapeHtml(node.text);
   }
-
+  // eslint-typescript has issues with recursive functions
+  // eslint-disable-next-line
   const children = node.children.map((n: any) => serialize(n)).join('');
 
   switch (node.type) {
@@ -22,11 +23,7 @@ function serialize(node: any): any {
   }
 }
 
-type SlateEditorProps = {
-  onChange: (content: []) => void;
-};
-
-function SlateEditor({ onChange }: SlateEditorProps) {
+function SlateEditor() {
   const [text, setText] = useState<Node[]>([
     {
       type: 'paragraph',
@@ -36,17 +33,12 @@ function SlateEditor({ onChange }: SlateEditorProps) {
 
   const editor = useMemo(() => withReact(createEditor()), []);
 
-  useEffect(() => {
-    const content = serialize(editor);
-    onChange(content);
-  }, [text]);
-
   return (
     <Slate editor={editor} value={text} onChange={(newValue) => setText(newValue)}>
       <Editable
         className="ant-form-item-control-input-content"
         style={{ minHeight: 150, padding: 10, border: '1px solid #d9d9d9' }}
-      />{' '}
+      />
     </Slate>
   );
 }

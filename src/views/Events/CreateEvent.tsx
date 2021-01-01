@@ -3,10 +3,10 @@ import { Form, Input, Select, DatePicker, Button } from 'antd';
 import firebase, { firestore } from '../../firebase';
 import { useFirestore, useFirestoreCollectionData } from 'reactfire';
 import { Organization } from '../../types/firestore';
+import SlateEditor from '../../components/SlateEditor';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
-const { TextArea } = Input;
 
 const layout = {
   labelCol: { span: 8 },
@@ -73,11 +73,11 @@ function CreateEvent() {
         <Form.Item label="תאריך ושעה" name="eventDate" rules={[{ required: true }]}>
           <RangePicker showTime style={{ width: '100%' }} />
         </Form.Item>
-        <Form.Item label="מיקום האירוע" name="locationName" rules={[{ required: true }]}>
+        <Form.Item label="location ID" name="locationName" rules={[{ required: true }]}>
           <Input />
         </Form.Item>
         <Form.Item label="תיאור" name="content" rules={[{ required: true }]}>
-          <TextArea autoSize={{ minRows: 3, maxRows: 5 }} placeholder="תיאור האירוע" />
+          <SlateEditor />
         </Form.Item>
         <Form.Item label="מארגנים" name="organizerIds" rules={[{ required: true }]}>
           <Select mode="multiple">
