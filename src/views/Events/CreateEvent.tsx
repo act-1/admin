@@ -2,6 +2,7 @@ import { Form, Input, Select, DatePicker, Button } from 'antd';
 
 import firebase, { firestore } from '../../firebase';
 import { useFirestore, useFirestoreCollectionData } from 'reactfire';
+import { getDocumentSnapshot } from '../../services/api';
 import { Organization } from '../../types/firestore';
 import SlateEditor from '../../components/SlateEditor';
 
@@ -20,7 +21,7 @@ type EventFormValues = {
   id: string;
   title: string;
   eventDate: [{ _d: Date }, { _d: Date }];
-  locationName: string;
+  locationId: string;
   content: string;
   organizerIds: string[];
   thumbnail: string;
@@ -34,8 +35,10 @@ function CreateEvent() {
 
   const onFinish = async (values: EventFormValues) => {
     try {
-      const { id, title, eventDate, locationName, content, organizerIds, thumbnail } = values;
+      const { id, title, eventDate, locationId, content, organizerIds, thumbnail } = values;
 
+      const location = await getDocumentSnapshot({ collectionPath: 'locations', documentId: locationId });
+      console.log(location.data());
       const [start, end] = eventDate;
       const startDate = firebase.firestore.Timestamp.fromDate(start._d);
       const endDate = firebase.firestore.Timestamp.fromDate(end._d);
@@ -44,11 +47,11 @@ function CreateEvent() {
 
       await firestore.collection('events').doc(id).set({
         title,
-        locationName,
+        locationId,
         thumbnail,
         startDate,
         endDate,
-        content,
+        content: '<p>ok</p>',
         organizers,
       });
     } catch (err) {
@@ -73,10 +76,10 @@ function CreateEvent() {
         <Form.Item label="תאריך ושעה" name="eventDate" rules={[{ required: true }]}>
           <RangePicker showTime style={{ width: '100%' }} />
         </Form.Item>
-        <Form.Item label="location ID" name="locationName" rules={[{ required: true }]}>
+        <Form.Item label="location ID" name="locationId" rules={[{ required: true }]}>
           <Input />
         </Form.Item>
-        <Form.Item label="תיאור" name="content" rules={[{ required: true }]}>
+        <Form.Item label="תיאור" name="content">
           <SlateEditor />
         </Form.Item>
         <Form.Item label="מארגנים" name="organizerIds" rules={[{ required: true }]}>
