@@ -51,7 +51,7 @@ function CreateEvent() {
         thumbnail,
         startDate,
         endDate,
-        content: '<p>ok</p>',
+        content,
         organizers,
       });
     } catch (err) {

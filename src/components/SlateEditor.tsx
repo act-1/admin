@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import escapeHtml from 'escape-html';
 import { createEditor, Node, Text } from 'slate';
 import { Slate, Editable, withReact } from 'slate-react';
@@ -23,7 +23,13 @@ function serialize(node: any): any {
   }
 }
 
-function SlateEditor() {
+type SlateEditorProps = {
+  onChange?: (content: []) => void;
+};
+
+// Something very strange in the combination of this component and Antd's Form.Item - it grabs
+// the serialized content correctly and uses it with form.values, without the component sending it back.
+function SlateEditor({ onChange }: SlateEditorProps) {
   const [text, setText] = useState<Node[]>([
     {
       type: 'paragraph',
@@ -32,6 +38,15 @@ function SlateEditor() {
   ]);
 
   const editor = useMemo(() => withReact(createEditor()), []);
+
+  useEffect(() => {
+    const content = serialize(editor);
+    if (onChange) {
+      onChange(content);
+    }
+
+    // eslint-disable-next-line
+  }, [text]);
 
   return (
     <Slate editor={editor} value={text} onChange={(newValue) => setText(newValue)}>
