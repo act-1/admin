@@ -68,7 +68,7 @@ function CreatePost() {
           ...values,
           content,
           authorId: org.id,
-          authorPicture: org.thumbnail,
+          authorPicture: org.profilePicture,
           authorName: org.name,
           authorType: 'organization',
           likeCounter: 0,
