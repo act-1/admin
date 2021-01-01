@@ -1,10 +1,13 @@
-import { Form, Input, Select, Button } from 'antd';
+import { Form, Input, Select, DatePicker, Button } from 'antd';
+
 import firebase, { firestore } from '../../firebase';
 import { useFirestore, useFirestoreCollectionData } from 'reactfire';
+import { getDocumentSnapshot } from '../../services/api';
 import { Organization } from '../../types/firestore';
+import SlateEditor from '../../components/SlateEditor';
 
+const { RangePicker } = DatePicker;
 const { Option } = Select;
-const { TextArea } = Input;
 
 const layout = {
   labelCol: { span: 8 },
@@ -17,9 +20,11 @@ const tailLayout = {
 type EventFormValues = {
   id: string;
   title: string;
-  locationName: string;
+  eventDate: [{ _d: Date }, { _d: Date }];
+  locationId: string;
   content: string;
   organizerIds: string[];
+  thumbnail: string;
 };
 
 function CreateEvent() {
@@ -30,15 +35,25 @@ function CreateEvent() {
 
   const onFinish = async (values: EventFormValues) => {
     try {
-      const organizers = values.organizerIds.map((orgId) => organizations.find((org) => org.id === orgId));
+      const { id, title, eventDate, locationId, content, organizerIds, thumbnail } = values;
 
-      await firestore
-        .collection('events')
-        .doc(values.id)
-        .set({
-          ...values,
-          organizers,
-        });
+      const location = await getDocumentSnapshot({ collectionPath: 'locations', documentId: locationId });
+      console.log(location.data());
+      const [start, end] = eventDate;
+      const startDate = firebase.firestore.Timestamp.fromDate(start._d);
+      const endDate = firebase.firestore.Timestamp.fromDate(end._d);
+
+      const organizers = organizerIds.map((orgId) => organizations.find((org) => org.id === orgId));
+
+      await firestore.collection('events').doc(id).set({
+        title,
+        locationId,
+        thumbnail,
+        startDate,
+        endDate,
+        content,
+        organizers,
+      });
     } catch (err) {
       console.log(err);
     }
@@ -55,19 +70,19 @@ function CreateEvent() {
   return (
     <div className="form-wrapper">
       <Form {...layout} name="event" initialValues={{ remember: true }} onFinish={onFinish} onFinishFailed={onFinishFailed}>
-        <Form.Item label="כותרת האירוע" name="title">
+        <Form.Item label="כותרת האירוע" name="title" rules={[{ required: true }]}>
           <Input />
         </Form.Item>
-        <Form.Item label="מיקום האירוע" name="locationName">
+        <Form.Item label="תאריך ושעה" name="eventDate" rules={[{ required: true }]}>
+          <RangePicker showTime style={{ width: '100%' }} />
+        </Form.Item>
+        <Form.Item label="location ID" name="locationId" rules={[{ required: true }]}>
           <Input />
         </Form.Item>
         <Form.Item label="תיאור" name="content">
-          <TextArea autoSize={{ minRows: 3, maxRows: 5 }} placeholder="תיאור האירוע" />
+          <SlateEditor />
         </Form.Item>
-        <Form.Item label="Slug" name="id">
-          <Input />
-        </Form.Item>
-        <Form.Item label="מארגנים" name="organizerIds">
+        <Form.Item label="מארגנים" name="organizerIds" rules={[{ required: true }]}>
           <Select mode="multiple">
             {organizations.map((org) => (
               <Option value={org.id} key={org.id}>
@@ -76,6 +91,12 @@ function CreateEvent() {
               </Option>
             ))}
           </Select>
+        </Form.Item>
+        <Form.Item label="Slug" name="id" rules={[{ required: true }]}>
+          <Input />
+        </Form.Item>
+        <Form.Item label="כתובת תמונה" name="thumbnail" rules={[{ required: true }]}>
+          <Input type="url" />
         </Form.Item>
         <Form.Item {...tailLayout}>
           <Button type="primary" htmlType="submit">
