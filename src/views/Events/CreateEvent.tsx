@@ -14,26 +14,36 @@ const tailLayout = {
   wrapperCol: { offset: 12 },
 };
 
-type EventDocument = {
+type EventFormValues = {
   id: string;
   title: string;
   locationName: string;
   content: string;
+  organizerIds: string[];
 };
 
 function CreateEvent() {
   const { data: organizations }: { data: Organization[] } = useFirestoreCollectionData(
-    useFirestore().collection('organizations')
+    useFirestore().collection('organizations'),
+    { idField: 'id' }
   );
 
-  const onFinish = (values: EventDocument) => {
-    firestore
-      .collection('events')
-      .doc(values.id)
-      .set({
-        ...values,
-      });
+  const onFinish = async (values: EventFormValues) => {
+    try {
+      const organizers = values.organizerIds.map((orgId) => organizations.find((org) => org.id === orgId));
+
+      await firestore
+        .collection('events')
+        .doc(values.id)
+        .set({
+          ...values,
+          organizers,
+        });
+    } catch (err) {
+      console.log(err);
+    }
   };
+
   const onFinishFailed = (errorInfo: any) => {
     console.log('Failed:', errorInfo);
   };
@@ -56,6 +66,16 @@ function CreateEvent() {
         </Form.Item>
         <Form.Item label="Slug" name="id">
           <Input />
+        </Form.Item>
+        <Form.Item label="מארגנים" name="organizerIds">
+          <Select mode="multiple">
+            {organizations.map((org) => (
+              <Option value={org.id} key={org.id}>
+                <img alt="" style={{ width: 25, borderRadius: 25, marginLeft: 8 }} src={org.profilePicture} />
+                {org.name}
+              </Option>
+            ))}
+          </Select>
         </Form.Item>
         <Form.Item {...tailLayout}>
           <Button type="primary" htmlType="submit">

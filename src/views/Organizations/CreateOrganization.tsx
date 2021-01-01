@@ -12,7 +12,7 @@ const tailLayout = {
 type OrganizationDocument = {
   id: string;
   name: string;
-  thumbnail: string;
+  profilePicture: string;
 };
 
 function CreateOrganization() {
@@ -64,7 +64,7 @@ function CreateOrganization() {
         <Form.Item label="שם הארגון" name="name" rules={[{ required: true, message: 'יש להזין את שם הארגון' }]}>
           <Input />
         </Form.Item>
-        <Form.Item label="לוגו" name="thumbnail" rules={[{ required: true, message: 'יש להזין לוגו' }]}>
+        <Form.Item label="לוגו" name="profilePicture" rules={[{ required: true, message: 'יש להזין לוגו' }]}>
           <Input />
         </Form.Item>
         <Form.Item label="מזהה (id)" name="id" rules={[{ required: true, message: 'יש להזין מזהה ארגון' }]}>
