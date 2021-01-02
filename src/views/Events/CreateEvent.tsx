@@ -6,6 +6,7 @@ import { useFirestore, useFirestoreCollectionData } from 'reactfire';
 import { getGeoDocumentSnapshot } from '../../services/api';
 import { Organization } from '../../types/firestore';
 import SlateEditor from '../../components/SlateEditor';
+import LocationAutoComplete from '../../components/LocationAutoComplete';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -50,19 +51,19 @@ function CreateEvent() {
       const startDate = firebase.firestore.Timestamp.fromDate(start._d);
       const endDate = firebase.firestore.Timestamp.fromDate(end._d);
 
-      const organizers = organizerIds.map((orgId) => organizations.find((org) => org.id === orgId));
-      await GeoFirestore.collection('events')
-        .doc(id)
-        .set({
-          title,
-          locationId,
-          thumbnail,
-          startDate,
-          endDate,
-          content,
-          organizers,
-          coordinates: new firebase.firestore.GeoPoint(latitude, longitude),
-        });
+      // const organizers = organizerIds.map((orgId) => organizations.find((org) => org.id === orgId));
+      // await GeoFirestore.collection('events')
+      //   .doc(id)
+      //   .set({
+      //     title,
+      //     locationId,
+      //     thumbnail,
+      //     startDate,
+      //     endDate,
+      //     content,
+      //     organizers,
+      //     coordinates: new firebase.firestore.GeoPoint(latitude, longitude),
+      //   });
     } catch (err) {
       console.log(err);
     }
@@ -86,7 +87,7 @@ function CreateEvent() {
           <RangePicker showTime style={{ width: '100%' }} />
         </Form.Item>
         <Form.Item label="location ID" name="locationId" rules={[{ required: true }]}>
-          <Input />
+          <LocationAutoComplete />
         </Form.Item>
         <Form.Item label="תיאור" name="content">
           <SlateEditor />
