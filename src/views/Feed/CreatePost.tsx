@@ -1,6 +1,3 @@
-// @ts-nocheck
-
-import { useState } from 'react';
 import { Popconfirm, Form, Select, Button, message } from 'antd';
 import { useFirestore, useFirestoreCollectionData } from 'reactfire';
 import firebase, { firestore } from '../../firebase';
@@ -23,10 +20,8 @@ function CreatePost() {
     useFirestore().collection('organizations')
   );
 
-  const [content, setContent] = useState();
-
   const submitPost = async () => {
-    const authorId = form.getFieldValue('authorId');
+    const { authorId, content } = form.getFieldsValue();
 
     message.loading({ content: 'יוצרת פוסט...', key: 'create-post' });
 
@@ -49,6 +44,7 @@ function CreatePost() {
         });
 
         message.success({ content: 'הפוסט פורסם', key: 'create-post' });
+        form.resetFields();
       } else {
         throw new Error('התרחשה שגיאה במציאת הארגון.');
       }
@@ -80,15 +76,9 @@ function CreatePost() {
             ))}
           </Select>
         </Form.Item>
-        <div className="ant-row ant-row-rtl ant-form-item">
-          <div className="ant-col ant-col-8 ant-form-item-label ant-col-rtl">
-            <label>תוכן</label>
-          </div>
-
-          <div className="ant-col ant-col-12 ant-form-item-control ant-col-rtl">
-            <SlateEditor onChange={(htmlContent) => setContent(htmlContent)} />
-          </div>
-        </div>
+        <Form.Item label="תוכן" name="content">
+          <SlateEditor />
+        </Form.Item>
         <Form.Item {...tailLayout}>
           <Popconfirm title="לפרסם?" onConfirm={submitPost}>
             <Button type="primary" htmlType="submit">
