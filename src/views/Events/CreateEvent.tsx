@@ -1,6 +1,7 @@
 import { Form, Input, Select, DatePicker, Button } from 'antd';
 
 import firebase, { firestore } from '../../firebase';
+import * as geofirestore from 'geofirestore';
 import { useFirestore, useFirestoreCollectionData } from 'reactfire';
 import { getDocumentSnapshot } from '../../services/api';
 import { Organization } from '../../types/firestore';
@@ -8,6 +9,9 @@ import SlateEditor from '../../components/SlateEditor';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
+
+// TODO: Move reference to global state
+const GeoFirestore = geofirestore.initializeApp(firestore);
 
 const layout = {
   labelCol: { span: 8 },
@@ -45,7 +49,7 @@ function CreateEvent() {
 
       const organizers = organizerIds.map((orgId) => organizations.find((org) => org.id === orgId));
 
-      await firestore.collection('events').doc(id).set({
+      await GeoFirestore.collection('events').doc(id).set({
         title,
         locationId,
         thumbnail,
