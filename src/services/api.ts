@@ -1,13 +1,19 @@
-import firebase, { firestore } from '../firebase';
+import { firestore } from '../firebase';
+import * as geofirestore from 'geofirestore';
 
 type getDocumentSnapshotProps = {
   collectionPath: string;
   documentId: string;
 };
 
-export async function getDocumentSnapshot({
+// TODO: Move reference to global state
+const GeoFirestore = geofirestore.initializeApp(firestore);
+
+export async function getGeoDocumentSnapshot({
   collectionPath,
   documentId,
-}: getDocumentSnapshotProps): Promise<firebase.firestore.DocumentSnapshot> {
-  return firestore.collection(collectionPath).doc(documentId).get();
+}: getDocumentSnapshotProps): Promise<geofirestore.GeoDocumentSnapshot> {
+  const geocollection = GeoFirestore.collection(collectionPath);
+
+  return geocollection.doc(documentId).get();
 }

@@ -3,7 +3,7 @@ import { Form, Input, Select, DatePicker, Button } from 'antd';
 import firebase, { firestore } from '../../firebase';
 import * as geofirestore from 'geofirestore';
 import { useFirestore, useFirestoreCollectionData } from 'reactfire';
-import { getDocumentSnapshot } from '../../services/api';
+import { getGeoDocumentSnapshot } from '../../services/api';
 import { Organization } from '../../types/firestore';
 import SlateEditor from '../../components/SlateEditor';
 
@@ -41,23 +41,28 @@ function CreateEvent() {
     try {
       const { id, title, eventDate, locationId, content, organizerIds, thumbnail } = values;
 
-      const location = await getDocumentSnapshot({ collectionPath: 'locations', documentId: locationId });
-      console.log(location.data());
+      const location = await getGeoDocumentSnapshot({ collectionPath: 'locations', documentId: locationId });
+      if (!location) throw new Error('Location was not found.');
+
+      const { latitude, longitude } = location.data()!.coordinates;
+
       const [start, end] = eventDate;
       const startDate = firebase.firestore.Timestamp.fromDate(start._d);
       const endDate = firebase.firestore.Timestamp.fromDate(end._d);
 
       const organizers = organizerIds.map((orgId) => organizations.find((org) => org.id === orgId));
-
-      await GeoFirestore.collection('events').doc(id).set({
-        title,
-        locationId,
-        thumbnail,
-        startDate,
-        endDate,
-        content,
-        organizers,
-      });
+      await GeoFirestore.collection('events')
+        .doc(id)
+        .set({
+          title,
+          locationId,
+          thumbnail,
+          startDate,
+          endDate,
+          content,
+          organizers,
+          coordinates: new firebase.firestore.GeoPoint(latitude, longitude),
+        });
     } catch (err) {
       console.log(err);
     }
