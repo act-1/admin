@@ -53,6 +53,7 @@ function CreateEvent() {
         endDate,
         content,
         organizers,
+        pastEvent: false,
       });
     } catch (err) {
       console.log(err);
