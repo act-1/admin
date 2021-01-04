@@ -1,4 +1,4 @@
-import { Home, CreatePost, CreateEvent, CreateOrganization } from '../views';
+import { Home, CreatePost, CreateEvent, CreateOrganization, EventList } from '../views';
 
 const routes = [
   {
@@ -17,6 +17,12 @@ const routes = [
     path: ['/events/new'],
     component: CreateEvent,
     key: 'CREATE_EVENT',
+    exact: true,
+  },
+  {
+    path: ['/events/list'],
+    component: EventList,
+    key: 'EVENT_LIST',
     exact: true,
   },
   {

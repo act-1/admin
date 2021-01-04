@@ -19,6 +19,9 @@ function App() {
             <Menu.Item key="2">
               <Link to="/events/new">אירוע חדש</Link>
             </Menu.Item>
+            <Menu.Item key="3">
+              <Link to="/events/list">רשימת אירועים</Link>
+            </Menu.Item>
           </SubMenu>
 
           <SubMenu key="sub2" icon={<AuditOutlined />} title="פיד">
