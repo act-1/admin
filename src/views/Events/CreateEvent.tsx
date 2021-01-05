@@ -1,4 +1,4 @@
-import { Form, Input, Select, DatePicker, Button } from 'antd';
+import { Form, Input, Select, DatePicker, Button, message } from 'antd';
 
 import firebase, { firestore } from '../../firebase';
 import * as geofirestore from 'geofirestore';
@@ -33,6 +33,7 @@ type EventFormValues = {
 };
 
 function CreateEvent() {
+  const [form] = Form.useForm();
   const { data: organizations }: { data: Organization[] } = useFirestoreCollectionData(
     useFirestore().collection('organizations'),
     { idField: 'id' }
@@ -40,30 +41,43 @@ function CreateEvent() {
 
   const onFinish = async (values: EventFormValues) => {
     try {
+      message.loading({ content: 'יוצרת אירוע...', key: 'creating-event' });
+
       const { id, title, eventDate, locationId, content, organizerIds, thumbnail } = values;
 
       const location = await getGeoDocumentSnapshot({ collectionPath: 'locations', documentId: locationId });
       if (!location) throw new Error('Location was not found.');
 
-      const { latitude, longitude } = location.data()!.coordinates;
+      const locationData: any = location.data();
+      const { name: locationName, city, province, coordinates } = locationData;
+      const { latitude, longitude } = coordinates;
 
       const [start, end] = eventDate;
       const startDate = firebase.firestore.Timestamp.fromDate(start._d);
       const endDate = firebase.firestore.Timestamp.fromDate(end._d);
 
-      // const organizers = organizerIds.map((orgId) => organizations.find((org) => org.id === orgId));
-      // await GeoFirestore.collection('events')
-      //   .doc(id)
-      //   .set({
-      //     title,
-      //     locationId,
-      //     thumbnail,
-      //     startDate,
-      //     endDate,
-      //     content,
-      //     organizers,
-      //     coordinates: new firebase.firestore.GeoPoint(latitude, longitude),
-      //   });
+      const organizers = organizerIds.map((orgId) => organizations.find((org) => org.id === orgId));
+      await GeoFirestore.collection('events')
+        .doc(id)
+        .set({
+          id,
+          title,
+          locationId,
+          locationName,
+          city,
+          province,
+          thumbnail,
+          startDate,
+          endDate,
+          content,
+          organizers,
+          attendingCount: 0,
+          pastEvent: false,
+          coordinates: new firebase.firestore.GeoPoint(latitude, longitude),
+        });
+
+      message.success({ content: 'האירוע נוצר בהצלחה', key: 'creating-event' });
+      form.resetFields();
     } catch (err) {
       console.log(err);
     }
@@ -87,7 +101,7 @@ function CreateEvent() {
           <RangePicker showTime style={{ width: '100%' }} />
         </Form.Item>
         <Form.Item label="location ID" name="locationId" rules={[{ required: true }]}>
-          <LocationAutoComplete />
+          <Input />
         </Form.Item>
         <Form.Item label="תיאור" name="content">
           <SlateEditor />
