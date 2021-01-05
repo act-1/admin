@@ -1,13 +1,18 @@
-import { Form, Input, Select, DatePicker, Button } from 'antd';
+import { Form, Input, Select, DatePicker, Button, message } from 'antd';
 
 import firebase, { firestore } from '../../firebase';
+import * as geofirestore from 'geofirestore';
 import { useFirestore, useFirestoreCollectionData } from 'reactfire';
-import { getDocumentSnapshot } from '../../services/api';
+import { getGeoDocumentSnapshot } from '../../services/api';
 import { Organization } from '../../types/firestore';
 import SlateEditor from '../../components/SlateEditor';
+import LocationAutoComplete from '../../components/LocationAutoComplete';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
+
+// TODO: Move reference to global state
+const GeoFirestore = geofirestore.initializeApp(firestore);
 
 const layout = {
   labelCol: { span: 8 },
@@ -28,6 +33,7 @@ type EventFormValues = {
 };
 
 function CreateEvent() {
+  const [form] = Form.useForm();
   const { data: organizations }: { data: Organization[] } = useFirestoreCollectionData(
     useFirestore().collection('organizations'),
     { idField: 'id' }
@@ -35,26 +41,43 @@ function CreateEvent() {
 
   const onFinish = async (values: EventFormValues) => {
     try {
+      message.loading({ content: 'יוצרת אירוע...', key: 'creating-event' });
+
       const { id, title, eventDate, locationId, content, organizerIds, thumbnail } = values;
 
-      const location = await getDocumentSnapshot({ collectionPath: 'locations', documentId: locationId });
-      console.log(location.data());
+      const location = await getGeoDocumentSnapshot({ collectionPath: 'locations', documentId: locationId });
+      if (!location) throw new Error('Location was not found.');
+
+      const locationData: any = location.data();
+      const { name: locationName, city, province, coordinates } = locationData;
+      const { latitude, longitude } = coordinates;
+
       const [start, end] = eventDate;
       const startDate = firebase.firestore.Timestamp.fromDate(start._d);
       const endDate = firebase.firestore.Timestamp.fromDate(end._d);
 
       const organizers = organizerIds.map((orgId) => organizations.find((org) => org.id === orgId));
+      await GeoFirestore.collection('events')
+        .doc(id)
+        .set({
+          id,
+          title,
+          locationId,
+          locationName,
+          city,
+          province,
+          thumbnail,
+          startDate,
+          endDate,
+          content,
+          organizers,
+          attendingCount: 0,
+          pastEvent: false,
+          coordinates: new firebase.firestore.GeoPoint(latitude, longitude),
+        });
 
-      await firestore.collection('events').doc(id).set({
-        title,
-        locationId,
-        thumbnail,
-        startDate,
-        endDate,
-        content,
-        organizers,
-        pastEvent: false,
-      });
+      message.success({ content: 'האירוע נוצר בהצלחה', key: 'creating-event' });
+      form.resetFields();
     } catch (err) {
       console.log(err);
     }

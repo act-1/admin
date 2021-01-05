@@ -52,7 +52,7 @@ function SlateEditor({ onChange }: SlateEditorProps) {
     <Slate editor={editor} value={text} onChange={(newValue) => setText(newValue)}>
       <Editable
         className="ant-form-item-control-input-content"
-        style={{ minHeight: 150, padding: 10, border: '1px solid #d9d9d9' }}
+        style={{ minHeight: 150, padding: 10, border: '1px solid #d9d9d9', fontFamily: 'Arial' }}
       />
     </Slate>
   );
