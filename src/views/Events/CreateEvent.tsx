@@ -93,7 +93,14 @@ function CreateEvent() {
 
   return (
     <div className="form-wrapper">
-      <Form {...layout} name="event" initialValues={{ remember: true }} onFinish={onFinish} onFinishFailed={onFinishFailed}>
+      <Form
+        {...layout}
+        form={form}
+        name="event"
+        initialValues={{ remember: true }}
+        onFinish={onFinish}
+        onFinishFailed={onFinishFailed}
+      >
         <Form.Item label="כותרת האירוע" name="title" rules={[{ required: true }]}>
           <Input />
         </Form.Item>
