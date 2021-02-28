@@ -71,8 +71,8 @@ function CreateEvent() {
           endDate,
           content,
           organizers,
+          status: 'upcoming',
           attendingCount: 0,
-          pastEvent: false,
           coordinates: new firebase.firestore.GeoPoint(latitude, longitude),
         });
 

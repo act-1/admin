@@ -39,8 +39,9 @@ function CreatePost() {
 
         await firestore.collection('posts').add({
           ...post,
+          type: 'post',
           likeCounter: 0,
-          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         });
 
         message.success({ content: 'הפוסט פורסם', key: 'create-post' });
