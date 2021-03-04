@@ -6,7 +6,6 @@ import { useFirestore, useFirestoreCollectionData } from 'reactfire';
 import { getGeoDocumentSnapshot } from '../../services/api';
 import { Organization } from '../../types/firestore';
 import SlateEditor from '../../components/SlateEditor';
-import LocationAutoComplete from '../../components/LocationAutoComplete';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -30,6 +29,7 @@ type EventFormValues = {
   content: string;
   organizerIds: string[];
   thumbnail: string;
+  compactThumbnail: string;
 };
 
 function CreateEvent() {
@@ -43,7 +43,7 @@ function CreateEvent() {
     try {
       message.loading({ content: 'יוצרת אירוע...', key: 'creating-event' });
 
-      const { id, title, eventDate, locationId, content, organizerIds, thumbnail } = values;
+      const { id, title, eventDate, locationId, content, organizerIds, thumbnail, compactThumbnail } = values;
 
       const location = await getGeoDocumentSnapshot({ collectionPath: 'locations', documentId: locationId });
       if (!location) throw new Error('Location was not found.');
@@ -67,6 +67,7 @@ function CreateEvent() {
           city,
           province,
           thumbnail,
+          compactThumbnail,
           startDate,
           endDate,
           content,
@@ -128,6 +129,9 @@ function CreateEvent() {
           <Input />
         </Form.Item>
         <Form.Item label="כתובת תמונה" name="thumbnail" rules={[{ required: true }]}>
+          <Input type="url" />
+        </Form.Item>
+        <Form.Item label="תמונה קומפקטית" name="compactThumbnail" rules={[{ required: true }]}>
           <Input type="url" />
         </Form.Item>
         <Form.Item {...tailLayout}>
