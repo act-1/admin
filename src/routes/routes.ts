@@ -1,4 +1,4 @@
-import { Home, CreatePost, CreateEvent, CreateOrganization } from '../views';
+import { Home, CreateEvent, CreateOrganization, NewPicture } from '../views';
 
 const routes = [
   {
@@ -8,9 +8,9 @@ const routes = [
     exact: true,
   },
   {
-    path: ['/feed/new'],
-    component: CreatePost,
-    key: 'CREATE_POST',
+    path: ['/pictures/new'],
+    component: NewPicture,
+    key: 'NEW_PICTURE',
     exact: true,
   },
   {

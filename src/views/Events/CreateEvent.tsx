@@ -74,6 +74,7 @@ function CreateEvent() {
           status: 'upcoming',
           attendingCount: 0,
           coordinates: new firebase.firestore.GeoPoint(latitude, longitude),
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         });
 
       message.success({ content: 'האירוע נוצר בהצלחה', key: 'creating-event' });

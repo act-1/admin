@@ -21,9 +21,9 @@ function App() {
             </Menu.Item>
           </SubMenu>
 
-          <SubMenu key="sub2" icon={<AuditOutlined />} title="פיד">
+          <SubMenu key="sub2" icon={<AuditOutlined />} title="תמונות">
             <Menu.Item key="3">
-              <Link to="/feed/new">יצירת פוסט</Link>
+              <Link to="/pictures/new">תמונה חדשה</Link>
             </Menu.Item>
           </SubMenu>
           <SubMenu key="sub3" icon={<TeamOutlined />} title="ארגונים">
